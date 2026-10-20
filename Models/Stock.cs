@@ -17,6 +17,9 @@ namespace FinShark.Models
         public string? Industry { get; set; }
         [Column(TypeName = "decimal(18,2)")]
         public decimal MarketCap { get; set; }
+        public string InternalNotes { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal CostToCompany { get; set; }
         public bool IsActive { get; set; }
         public bool IsDelete { get; set; } = false;
         public Collection<Comment> Comments { get; set; }

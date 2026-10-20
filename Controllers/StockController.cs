@@ -2,6 +2,7 @@
 using FinShark.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinShark.Controllers
 {
@@ -10,25 +11,25 @@ namespace FinShark.Controllers
     public class StockController : ControllerBase
     {
         private readonly ApplicationDBContext _context;
-
+        //DTO Data Transfer Object
         public StockController(ApplicationDBContext context)
         {
             _context = context;
         }
         //Url/api/Stock/GetAllStock
         [HttpGet]
-        public IActionResult GetAllStock()
+        public async Task<IActionResult> GetAllStock()
         {
             //SQL = Select * From Stock
-            List<Stock> Stocks = _context.Stocks.ToList();
+            List<Stock> Stocks = await _context.Stocks.ToListAsync();
             return Ok(Stocks);
         }
         [HttpGet("{id}")]
-        public IActionResult GetStockById(int id)
+        public async Task<IActionResult> GetStockById(int id)
         {
             //SQL = Select * From Stock as s Where s.Id = {id} and s.IsActive = 1
             //Stock stock = _context.Stocks.Where(s => (s.Id == id && s.IsActive == true)).First();
-            Stock stock = _context.Stocks.Find(id);
+            Stock stock = await _context.Stocks.FindAsync(id);
             if (stock == null)
             {
                 return BadRequest($"Not Found Stock With Id = {id}");//404
@@ -36,14 +37,14 @@ namespace FinShark.Controllers
             return Ok(stock);
         }
         [HttpPost]
-        public IActionResult AddNewStock(Stock stock)
+        public async Task<IActionResult> AddNewStock(Stock stock)
         {
-            _context.Stocks.Add(stock);
-            _context.SaveChanges();
+            await _context.Stocks.AddAsync(stock);
+            await _context.SaveChangesAsync();
             return Created();
         }
         [HttpPut("{id}")]
-        public IActionResult UpdateStock(int id , Stock newstock)
+        public async Task<IActionResult> UpdateStock(int id , Stock newstock)
         {
             //Stock oldstock = _context.Stocks.Find(id);
             //if (oldstock == null)
@@ -59,11 +60,11 @@ namespace FinShark.Controllers
             //_context.SaveChanges();
             //return Ok(oldstock);
             _context.Stocks.Update(newstock);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return Ok(newstock);
         }
         [HttpDelete("{id}")]
-        public IActionResult DeleteStockById(int id)
+        public async Task<IActionResult> DeleteStockById(int id)
         {
             //Hard Delete 
             //Stock stock = _context.Stocks.Find(id);
@@ -71,13 +72,13 @@ namespace FinShark.Controllers
             //_context.SaveChanges();
 
             //Soft Delete
-            Stock stock = _context.Stocks.Find(id);
+            Stock stock =await _context.Stocks.FindAsync(id);
             if (stock == null)
             {
                 return BadRequest($"Not Found Stock With Id = {id}");//404
             }
             stock.IsDelete = true;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return Ok(stock);
         }
         //RESTFULL API CURD
