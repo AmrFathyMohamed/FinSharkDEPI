@@ -1,5 +1,7 @@
 ﻿using FinShark.Data;
 using FinShark.Models;
+using FinShark.Models.Dtos;
+using FinShark.Models.Mappers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +23,17 @@ namespace FinShark.Controllers
         public async Task<IActionResult> GetAllStock()
         {
             //SQL = Select * From Stock
-            List<Stock> Stocks = await _context.Stocks.ToListAsync();
+            var Stocks = await _context.Stocks
+                .Select(s => s.ToStockDto())
+                .ToListAsync();
+
+            //List<StockDto> stockDtos = new List<StockDto>();
+            //foreach (var Stock in Stocks)
+            //{
+            //      s.ToStockDto() = StockMappers.ToStockDto(Stock)
+            //    stockDtos.Add(StockMappers.ToStockDto(Stock));
+            //}
+
             return Ok(Stocks);
         }
         [HttpGet("{id}")]
@@ -36,11 +48,22 @@ namespace FinShark.Controllers
             }
             return Ok(stock);
         }
-        [HttpPost]
+        [HttpPost]//  POST api/Stock 
         public async Task<IActionResult> AddNewStock(Stock stock)
         {
             await _context.Stocks.AddAsync(stock);
             await _context.SaveChangesAsync();
+            return Created();
+        }
+        [HttpPost("CreateNewStock")]//  POST api/Stock/CreateNewStock
+        public async Task<IActionResult> CreateNewStock([FromBody] StockRequestDto stockRequestDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            //await _context.Stocks.AddAsync(stock);
+            //await _context.SaveChangesAsync();
             return Created();
         }
         [HttpPut("{id}")]
