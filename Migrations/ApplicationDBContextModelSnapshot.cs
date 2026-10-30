@@ -17,7 +17,7 @@ namespace FinShark.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.12")
+                .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -33,6 +33,9 @@ namespace FinShark.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("EncyptKey")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
@@ -41,7 +44,7 @@ namespace FinShark.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AppUsers");
+                    b.ToTable("AppUser");
                 });
 
             modelBuilder.Entity("FinShark.Models.Comment", b =>
@@ -52,28 +55,61 @@ namespace FinShark.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AppUserId")
+                    b.Property<string>("AppUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("AppUserId1")
                         .HasColumnType("int");
 
                     b.Property<string>("Content")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("StockId")
+                    b.Property<int?>("StockId")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AppUserId");
+                    b.HasIndex("AppUserId1");
 
                     b.HasIndex("StockId");
 
                     b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("FinShark.Models.Portfolio", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<string>("AppUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("AppUserId1")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StockId")
+                        .HasColumnType("int");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("AppUserId1");
+
+                    b.HasIndex("StockId");
+
+                    b.ToTable("Portfolios");
                 });
 
             modelBuilder.Entity("FinShark.Models.Stock", b =>
@@ -89,114 +125,54 @@ namespace FinShark.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Industry")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDelete")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("LastDiv")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("MarketCap")
+                    b.Property<decimal>("LastDiv")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<long>("MarketCap")
+                        .HasColumnType("bigint");
 
                     b.Property<decimal>("Purchase")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Symbol")
                         .IsRequired()
-                        .HasMaxLength(7)
-                        .HasColumnType("nvarchar(7)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.ToTable("Stocks");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CompanyName = "DEPI",
-                            Industry = "Tech",
-                            IsActive = true,
-                            IsDelete = false,
-                            LastDiv = new DateTime(2026, 10, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            MarketCap = 250000000000m,
-                            Purchase = 205.06m,
-                            Symbol = "ABCD"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CompanyName = "DECI",
-                            Industry = "Child",
-                            IsActive = false,
-                            IsDelete = false,
-                            LastDiv = new DateTime(2025, 10, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            MarketCap = 300000000000m,
-                            Purchase = 505.06m,
-                            Symbol = "EFGH"
-                        });
-                });
-
-            modelBuilder.Entity("FinShark.Models.Wallet", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AppUserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Qauntity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StockId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AppUserId");
-
-                    b.HasIndex("StockId");
-
-                    b.ToTable("Wallets");
                 });
 
             modelBuilder.Entity("FinShark.Models.Comment", b =>
                 {
                     b.HasOne("FinShark.Models.AppUser", "AppUser")
-                        .WithMany("Comments")
-                        .HasForeignKey("AppUserId")
+                        .WithMany()
+                        .HasForeignKey("AppUserId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FinShark.Models.Stock", "Stock")
                         .WithMany("Comments")
-                        .HasForeignKey("StockId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("StockId");
 
                     b.Navigation("AppUser");
 
                     b.Navigation("Stock");
                 });
 
-            modelBuilder.Entity("FinShark.Models.Wallet", b =>
+            modelBuilder.Entity("FinShark.Models.Portfolio", b =>
                 {
                     b.HasOne("FinShark.Models.AppUser", "AppUser")
-                        .WithMany("Wallets")
-                        .HasForeignKey("AppUserId")
+                        .WithMany()
+                        .HasForeignKey("AppUserId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FinShark.Models.Stock", "Stock")
-                        .WithMany("Wallets")
+                        .WithMany("Portfolios")
                         .HasForeignKey("StockId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -204,20 +180,13 @@ namespace FinShark.Migrations
                     b.Navigation("AppUser");
 
                     b.Navigation("Stock");
-                });
-
-            modelBuilder.Entity("FinShark.Models.AppUser", b =>
-                {
-                    b.Navigation("Comments");
-
-                    b.Navigation("Wallets");
                 });
 
             modelBuilder.Entity("FinShark.Models.Stock", b =>
                 {
                     b.Navigation("Comments");
 
-                    b.Navigation("Wallets");
+                    b.Navigation("Portfolios");
                 });
 #pragma warning restore 612, 618
         }

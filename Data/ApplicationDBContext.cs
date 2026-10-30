@@ -1,43 +1,30 @@
-﻿using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using FinShark.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
 namespace FinShark.Data
 {
     public class ApplicationDBContext : DbContext
     {
-        public ApplicationDBContext(DbContextOptions options) : base(options) { }
+        public ApplicationDBContext(DbContextOptions dbContextOptions)
+        : base(dbContextOptions)
+        {
+
+        }
 
         public DbSet<Stock> Stocks { get; set; }
-        public DbSet<Wallet> Wallets { get; set; }
-        public DbSet<AppUser> AppUsers { get; set; }
-        public DbSet<Comment> Comments { get; set; }      
-        
+        public DbSet<Comment> Comments { get; set; }
+        public DbSet<Portfolio> Portfolios { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<Stock>().HasData(
-                            new Stock()
-                            {
-                                Id = 1,
-                                Symbol = "ABCD",
-                                CompanyName = "DEPI",
-                                Purchase = 205.06m,
-                                Industry = "Tech",
-                                LastDiv = new DateTime(2026, 10, 10),
-                                MarketCap = 250000000000,
-                                IsActive = true
-                            },
-                            new Stock()
-                            {
-                                Id = 2,
-                                Symbol = "EFGH",
-                                CompanyName = "DECI",
-                                Purchase = 505.06m,
-                                Industry = "Child",
-                                LastDiv = new DateTime(2025, 10, 10),
-                                MarketCap = 300000000000,
-                                IsActive = false
-                            }
-                            );
+            base.OnModelCreating(builder);
 
+            
         }
     }
 }
