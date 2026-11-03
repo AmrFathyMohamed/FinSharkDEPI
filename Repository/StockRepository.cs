@@ -1,12 +1,14 @@
+using FinShark.Data;
+using FinShark.Dtos.Stock;
+using FinShark.Helper;
+using FinShark.Interfaces;
+using FinShark.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FinShark.Data;
-using FinShark.Dtos.Stock;
-using FinShark.Interfaces;
-using FinShark.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace FinShark.Repository
 {
@@ -39,9 +41,24 @@ namespace FinShark.Repository
             return stockModel;
         }
 
-        public async Task<List<Stock>> GetAllAsync()
+        public async Task<List<Stock>> GetAllAsync(QueryObject queryObject)
         {
-            return await _context.Stocks.Include(c => c.Comments).ToListAsync();
+            var stocks = _context.Stocks.Include(c => c.Comments).AsQueryable();
+            if (!string.IsNullOrWhiteSpace(queryObject.Symbol))
+            {
+                stocks = stocks.Where(x => x.Symbol.Contains(queryObject.Symbol));
+            }
+            if (!string.IsNullOrWhiteSpace(queryObject.CompanyName))
+            {
+                stocks = stocks.Where(x => x.Symbol.Contains(queryObject.CompanyName));
+            }
+            stocks = queryObject.IsDes ?
+                stocks.OrderByDescending(x=>x.Symbol)
+                : stocks.OrderBy(x => x.Symbol);
+            int skipnum = (queryObject.PageNumber - 1) * queryObject.PageSize;
+            stocks = stocks.Skip(skipnum).Take(queryObject.PageSize);
+            
+            return await stocks.ToListAsync();
         }
 
         public async Task<Stock?> GetByIdAsync(int id)
@@ -72,7 +89,6 @@ namespace FinShark.Repository
             existingStock.CompanyName = stockDto.CompanyName;
             existingStock.Purchase = stockDto.Purchase;
             existingStock.LastDiv = stockDto.LastDiv;
-            existingStock.Industry = stockDto.Industry;
             existingStock.MarketCap = stockDto.MarketCap;
 
             await _context.SaveChangesAsync();

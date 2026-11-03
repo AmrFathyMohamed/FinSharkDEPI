@@ -1,7 +1,13 @@
 using FinShark.Data;
-using FinShark.Interface;
+using FinShark.Dtos.Stock;
 using FinShark.Interfaces;
+using FinShark.Middleware;
+using FinShark.Models;
 using FinShark.Repository;
+using FinShark.Validators;
+using FluentValidation;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,16 +18,20 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IStockRepository, StockRepository>();
-builder.Services.AddDbContext<ApplicationDBContext>(options =>
+builder.Services.AddScoped<IValidator<CreateStockRequestDto>, CreateStockValidator>();
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 {
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")
-        );
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 8;
+    options.Password.RequireUppercase = true;
 });
 
 
 var app = builder.Build();
-
+app.UseExceptionHandler();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

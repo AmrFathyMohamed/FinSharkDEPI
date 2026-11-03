@@ -32,7 +32,6 @@ namespace FinShark.Mappers
                 Purchase = stockDto.Purchase,
                 LastDiv = stockDto.LastDiv,
                 Industry = stockDto.Industry,
-                MarketCap = stockDto.MarketCap
             };
         }
 

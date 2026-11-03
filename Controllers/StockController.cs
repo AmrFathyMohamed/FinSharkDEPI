@@ -1,14 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using FinShark.Data;
 using FinShark.Dtos.Stock;
+using FinShark.Fillters;
+using FinShark.Helper;
 using FinShark.Interfaces;
 using FinShark.Mappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace FinShark.Controllers
 {
@@ -25,12 +27,12 @@ namespace FinShark.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] QueryObject queryObject)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var stocks = await _stockRepo.GetAllAsync();
+            var stocks = await _stockRepo.GetAllAsync(queryObject);
 
             var stockDto = stocks.Select(s => s.ToStockDto()).ToList();
 
@@ -54,6 +56,7 @@ namespace FinShark.Controllers
         }
 
         [HttpPost]
+        [TypeFilter(typeof(ValidatorFilter<CreateStockRequestDto>))]
         public async Task<IActionResult> Create([FromBody] CreateStockRequestDto stockDto)
         {
             if (!ModelState.IsValid)

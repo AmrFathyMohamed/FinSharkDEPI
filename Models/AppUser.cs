@@ -4,13 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FinShark.Models
 {
-    public class AppUser
-    {
-        [Key]
-        public int Id { get; set; }
-        public string? UserName { get; set; }
-        public string? Email { get; set; }
-        public string? PasswordHash { get; set; }
-        public string? EncyptKey { get; set; }
+    public class AppUser : IdentityUser
+    {       
     }
 }
