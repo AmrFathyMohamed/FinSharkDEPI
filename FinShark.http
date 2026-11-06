@@ -1,6 +1,63 @@
 @FinShark_HostAddress = http://localhost:5253
 
-GET {{FinShark_HostAddress}}/weatherforecast/
+### Stocks — كل الأسهم (Session 3)
+GET {{FinShark_HostAddress}}/api/stock
 Accept: application/json
 
-###
+### Stocks — Filtering + Sorting + Pagination (Session 7)
+GET {{FinShark_HostAddress}}/api/stock?symbol=FS&sortBy=Purchase&isDescending=true&pageNumber=1&pageSize=5
+Accept: application/json
+
+### Stock by id (مع التعليقات — Include)
+GET {{FinShark_HostAddress}}/api/stock/1
+Accept: application/json
+
+### Stock by symbol
+GET {{FinShark_HostAddress}}/api/stock/symbol/AAPL
+Accept: application/json
+
+### Create stock (201 / 400 / 409)
+POST {{FinShark_HostAddress}}/api/stock
+Content-Type: application/json
+
+{
+  "symbol": "MSFT",
+  "companyName": "Microsoft Corp.",
+  "purchase": 300.5,
+  "lastDiv": 0.75,
+  "industry": "Tech",
+  "marketCap": 3000000000000
+}
+
+### Update stock
+PUT {{FinShark_HostAddress}}/api/stock/1
+Content-Type: application/json
+
+{
+  "symbol": "AAPL",
+  "companyName": "Apple Inc.",
+  "purchase": 175,
+  "lastDiv": 0.25,
+  "industry": "Tech",
+  "marketCap": 2900000000000
+}
+
+### Delete stock (204 / 404)
+DELETE {{FinShark_HostAddress}}/api/stock/2
+
+### Comments — تعليق جديد على السهم رقم 1 (Session 6)
+POST {{FinShark_HostAddress}}/api/comment/1
+Content-Type: application/json
+
+{
+  "title": "Great stock",
+  "content": "Strong earnings this quarter."
+}
+
+### All comments
+GET {{FinShark_HostAddress}}/api/comment
+Accept: application/json
+
+### Comments on a stock
+GET {{FinShark_HostAddress}}/api/comment?stockId=1
+Accept: application/json

@@ -1,14 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace FinShark.Dtos.Stock
 {
+    // Session 4: الـ DTO الخاص بتعديل سهم (PUT).
+    // نفس حقول الإنشاء حالياً، بس نوع منفصل عشان لو التعديل احتاج قاعدة مختلفة يبقى ليها مكان.
     public class UpdateStockRequestDto : StockRequestDto
     {
-        [Range(1, 5000000000)]
-        public long MarketCap { get; set; }
     }
 }

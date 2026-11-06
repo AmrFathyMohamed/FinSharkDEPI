@@ -1,15 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace FinShark.Dtos.Stock
 {
+    // Session 4: الـ DTO الخاص بإنشاء سهم (POST).
+    // فاضي عن قصد: بيورث كل الحقول والقواعد من StockRequestDto،
+    // بس وجوده كنوع منفصل بيخلّينا نسجّل Validator خاص بيه، وأي قاعدة خاصة بالإنشاء تتحط هنا.
     public class CreateStockRequestDto : StockRequestDto
     {
-        [Required]
-        [MaxLength(10, ErrorMessage = "Industry cannot be over 10 characters")]
-        public string Industry { get; set; } = string.Empty;
     }
 }
