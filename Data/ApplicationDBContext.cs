@@ -1,11 +1,13 @@
 using FinShark.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinShark.Data
 {
     // Session 2: الـ DbContext = البوابة اللي بنكلّم بيها الداتابيز.
     // بنورث من DbContext عشان ناخد كل قدرات EF Core (DbSet, SaveChanges, Change Tracking...)
-    public class ApplicationDBContext : DbContext
+    public class ApplicationDBContext : IdentityDbContext<AppUser>
     {
         // الـ options (الـ connection string ونوع الداتابيز) جاية من AddDbContext في Program.cs
         // ولازم تتبعت للـ base — من غيرها الـ DbContext مش هيعرف يتصل بأي داتابيز
@@ -17,10 +19,12 @@ namespace FinShark.Data
         // كل DbSet = جدول في الداتابيز
         public DbSet<Stock> Stocks { get; set; } = null!;
         public DbSet<Comment> Comments { get; set; } = null!;
+        public DbSet<Portolio> Portolios { get; set; } = null!;
 
         // OnModelCreating = المكان اللي بنظبط فيه شكل الداتابيز: العلاقات، الـ indexes، الـ constraints، والـ seed
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            base.OnModelCreating(builder);
             // ===== Stock: قيود على مستوى الداتابيز (Session 2) =====
             builder.Entity<Stock>(entity =>
             {
@@ -60,7 +64,33 @@ namespace FinShark.Data
                     Purchase = 250.00m, LastDiv = 0m,
                     Industry = "Automotive", MarketCap = 800000000000
                 }
-            );
+           
+                
+                );
+            builder.Entity<IdentityRole>().HasData(                
+                    new IdentityRole
+                    {
+                        Id = "2d9720b9-5a1e-4e1a-a9b2-672283868836",
+                        Name = AppRoles.SuperAdmin,
+                        NormalizedName = AppRoles.SuperAdmin.ToUpperInvariant(),
+                        ConcurrencyStamp = "superadmin-role-stamp-superadmin"
+                    },                 
+                    new IdentityRole
+                    {
+                        Id = "330339a2-ff01-4678-9aaa-93d0c49ca70d",
+                        Name = AppRoles.Admin,
+                        NormalizedName = AppRoles.Admin.ToUpperInvariant(),
+                        ConcurrencyStamp = "admin-role-stamp-superadmin"
+                    },                 
+                    new IdentityRole
+                    {
+                        //Id = new Guid().ToString(),
+                        Id = "955ab79a-51ea-4c9d-b250-9d9d84492eb0",
+                        Name = AppRoles.User,
+                        NormalizedName = AppRoles.User.ToUpperInvariant(),
+                        ConcurrencyStamp = "user-role-stamp-user"
+                    } 
+                );
         }
     }
 }

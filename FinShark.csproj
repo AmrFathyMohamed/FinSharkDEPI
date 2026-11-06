@@ -10,6 +10,8 @@
   <!-- الحزم (NuGet) اللي المشروع معتمد عليها -->
   <ItemGroup>
     <!-- Session 1: Swagger UI (في .NET 10 مش جاي جاهز في الـ template) -->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.14" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.14" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.3.1" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.14" />
 
@@ -28,7 +30,7 @@
     <PackageReference Include="FluentValidation" Version="12.2.0" />
 
     <!-- Session 8: Serilog للـ Logging في الـ Console وفي ملفات -->
-    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
 
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />

@@ -2,9 +2,11 @@ using FinShark.Data;
 using FinShark.Dtos.Stock;
 using FinShark.Interfaces;
 using FinShark.Middleware;
+using FinShark.Models;
 using FinShark.Repository;
 using FinShark.Validators;
 using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -39,6 +41,15 @@ try
     builder.Services.AddDbContext<ApplicationDBContext>(options =>
     {
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    });
+    builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
+    {
+        options.Password.RequireDigit = true;
+        options.Password.RequiredLength = 10;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireLowercase = true;
+
+        options.User.RequireUniqueEmail = true;
     });
 
     // Session 5: Dependency Injection للـ Repositories
