@@ -1,8 +1,10 @@
+﻿using FinShark.Data;
 using FinShark.Dtos.Stock;
 using FinShark.Filters;
 using FinShark.Helpers;
 using FinShark.Interfaces;
 using FinShark.Mappers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinShark.Controllers
@@ -29,6 +31,8 @@ namespace FinShark.Controllers
 
         // GET /api/stock?symbol=AA&sortBy=Purchase&isDescending=true&pageNumber=1&pageSize=10
         // Session 7: [FromQuery] بيملا الـ QueryObject من الـ query parameters
+        // Identity: الـ endpoint ده للـ SuperAdmin بس — من غير token → 401، و token لـ Role تاني → 403
+        [Authorize(Roles = AppRoles.SuperAdmin)]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<StockDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAll([FromQuery] QueryObject query)
@@ -80,6 +84,7 @@ namespace FinShark.Controllers
         // [FromBody]: البيانات جاية JSON في جسم الـ request
         // ValidationFilter: بيشغّل FluentValidation قبل الـ action (Session 4)
         [HttpPost]
+        [Authorize]   // Identity: لازم token — من غيره 401
         [TypeFilter(typeof(ValidationFilter<CreateStockRequestDto>))]
         [ProducesResponseType(typeof(StockDto), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
@@ -106,6 +111,7 @@ namespace FinShark.Controllers
 
         // PUT /api/stock/1 — الـ id من الـ URL، والقيم الجديدة من الـ body
         [HttpPut("{id:int}")]
+        [Authorize]   // Identity: لازم token — من غيره 401
         [TypeFilter(typeof(ValidationFilter<UpdateStockRequestDto>))]
         [ProducesResponseType(typeof(StockDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
@@ -134,6 +140,7 @@ namespace FinShark.Controllers
 
         // DELETE /api/stock/1
         [HttpDelete("{id:int}")]
+        [Authorize]   // Identity: لازم token — من غيره 401
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete([FromRoute] int id)

@@ -2,6 +2,8 @@
 
 namespace FinShark.Dtos.Account
 {
+    // Identity: البيانات اللي الـ client بيبعتها في POST /api/account/register
+    // الـ DataAnnotations هنا للشكل بس — قواعد قوة الباسورد و Unique Email بيطبّقها Identity (من Program.cs)
     public class RegisterDto
     {
         [Required]

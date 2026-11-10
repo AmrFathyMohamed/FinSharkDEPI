@@ -1,4 +1,4 @@
-using FinShark.Models;
+﻿using FinShark.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +7,7 @@ namespace FinShark.Data
 {
     // Session 2: الـ DbContext = البوابة اللي بنكلّم بيها الداتابيز.
     // بنورث من DbContext عشان ناخد كل قدرات EF Core (DbSet, SaveChanges, Change Tracking...)
+    // Identity: غيّرناها لـ IdentityDbContext<AppUser> عشان تضيف جداول Identity (AspNetUsers, AspNetRoles, AspNetUserRoles...)
     public class ApplicationDBContext : IdentityDbContext<AppUser>
     {
         // الـ options (الـ connection string ونوع الداتابيز) جاية من AddDbContext في Program.cs
@@ -19,11 +20,13 @@ namespace FinShark.Data
         // كل DbSet = جدول في الداتابيز
         public DbSet<Stock> Stocks { get; set; } = null!;
         public DbSet<Comment> Comments { get; set; } = null!;
+        // Identity: جدول الـ Portfolio (الأسهم اللي كل user حافظها)
         public DbSet<Portolio> Portolios { get; set; } = null!;
 
         // OnModelCreating = المكان اللي بنظبط فيه شكل الداتابيز: العلاقات، الـ indexes، الـ constraints، والـ seed
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            // Identity: لازم الأول — ده اللي بيظبط جداول ومفاتيح Identity، من غيره الـ Migration بيفشل
             base.OnModelCreating(builder);
             // ===== Stock: قيود على مستوى الداتابيز (Session 2) =====
             builder.Entity<Stock>(entity =>
@@ -67,6 +70,8 @@ namespace FinShark.Data
            
                 
                 );
+            // ===== Identity: Seeding للـ Roles =====
+            // الـ Id والـ ConcurrencyStamp ثابتين (مش Guid.NewGuid) عشان كل Migration ميحسّش إن الـ Roles اتغيرت
             builder.Entity<IdentityRole>().HasData(                
                     new IdentityRole
                     {

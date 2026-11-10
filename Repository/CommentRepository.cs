@@ -15,6 +15,8 @@ namespace FinShark.Repository
             _context = context;
         }
 
+        // كل التعليقات (أو تعليقات سهم معيّن لو stockId اتبعت) — الأحدث الأول
+        // AsNoTracking: قراءة بس فمش محتاجين EF يتابع التغييرات (أسرع)
         public async Task<List<Comment>> GetAllAsync(int? stockId = null)
         {
             var comments = _context.Comments
@@ -31,11 +33,13 @@ namespace FinShark.Repository
                 .ToListAsync();
         }
 
+        // FindAsync بيدوّر بالـ Primary Key (وبيشوف الـ memory الأول قبل الداتابيز)
         public async Task<Comment?> GetByIdAsync(int id)
         {
             return await _context.Comments.FindAsync(id);
         }
 
+        // بعد SaveChanges الـ Id بيتملي تلقائياً في commentModel
         public async Task<Comment> CreateAsync(Comment commentModel)
         {
             await _context.Comments.AddAsync(commentModel);
@@ -61,6 +65,7 @@ namespace FinShark.Repository
             return existingComment;
         }
 
+        // بيرجّع null لو التعليق مش موجود → الـ Controller يرجّع 404
         public async Task<Comment?> DeleteAsync(int id)
         {
             var commentModel = await _context.Comments.FirstOrDefaultAsync(c => c.Id == id);

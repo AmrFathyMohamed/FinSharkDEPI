@@ -2,6 +2,7 @@
 
 namespace FinShark.Dtos.Account
 {
+    // Identity: البيانات اللي الـ client بيبعتها في POST /api/account/login
     public class LoginDto
     {
         [Required]

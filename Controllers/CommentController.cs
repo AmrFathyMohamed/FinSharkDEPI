@@ -1,6 +1,7 @@
 using FinShark.Dtos.Comment;
 using FinShark.Interfaces;
 using FinShark.Mappers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinShark.Controllers
@@ -48,6 +49,7 @@ namespace FinShark.Controllers
         // POST /api/comment/1 → تعليق جديد على السهم رقم 1
         // الـ stockId في الـ URL هو اللي بيربط التعليق بالسهم (الـ Foreign Key)
         [HttpPost("{stockId:int}")]
+        [Authorize]   // Identity: لازم token — من غيره 401
         [ProducesResponseType(typeof(CommentDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create([FromRoute] int stockId, [FromBody] CreateCommentDto commentDto)
@@ -64,6 +66,7 @@ namespace FinShark.Controllers
 
         // PUT /api/comment/1
         [HttpPut("{id:int}")]
+        [Authorize]   // Identity: لازم token — من غيره 401
         [ProducesResponseType(typeof(CommentDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateCommentDto updateDto)
@@ -80,6 +83,7 @@ namespace FinShark.Controllers
 
         // DELETE /api/comment/1
         [HttpDelete("{id:int}")]
+        [Authorize]   // Identity: لازم token — من غيره 401
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete([FromRoute] int id)
