@@ -1,12 +1,12 @@
 ﻿// ===== الـ usings: الـ namespaces اللي محتاجينها في الملف ده =====
-using FinShark.Data;                                   // ApplicationDBContext + DbSeeder
-using FinShark.Dtos.Stock;                             // الـ DTOs اللي الـ Validators شغالين عليها
-using FinShark.Interfaces;                             // IStockRepository, ICommentRepository, ITokenService
-using FinShark.Middleware;                             // GlobalExceptionHandler
-using FinShark.Models;                                 // AppUser
-using FinShark.Repository;                             // StockRepository, CommentRepository
-using FinShark.Services;                               // TokenService
-using FinShark.Validators;                             // CreateStockValidator, UpdateStockValidator
+using FinShark.API.Middleware;
+using FinShark.Application.Dtos.Stock;
+using FinShark.Application.Interfaces;
+using FinShark.Application.Validators;
+using FinShark.Domain.Entities.Models;
+using FinShark.Infrastructure.Data;
+using FinShark.Infrastructure.Repository;
+using FinShark.Infrastructure.Services;
 using FluentValidation;                                // IValidator<T>
 using Microsoft.AspNetCore.Authentication.JwtBearer;   // JwtBearerDefaults + AddJwtBearer
 using Microsoft.AspNetCore.Identity;                   // AddIdentity + IdentityRole
@@ -15,7 +15,7 @@ using Microsoft.IdentityModel.Tokens;                  // TokenValidationParamet
 using Microsoft.OpenApi;                               // OpenApiInfo + OpenApiSecurityScheme (Swagger)
 using Serilog;                                         // الـ Logging
 using System.Text;                                     // Encoding.UTF8 عشان نحوّل الـ SigningKey لـ bytes
-
+using Asp.Versioning;
 // ===== Session 8: إعداد Serilog — أول حاجة قبل أي كود عشان نسجّل حتى أخطاء بدء التشغيل =====
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()                                                              // أقل مستوى بيتسجّل: Information
@@ -44,11 +44,32 @@ try
     builder.Services.AddControllers();              // بيسجّل الـ Controllers (StockController, CommentController, AccountController)
     builder.Services.AddEndpointsApiExplorer();     // بيخلّي Swagger يشوف الـ endpoints
 
+    builder.Services.AddApiVersioning(options =>
+    {
+        options.DefaultApiVersion = new ApiVersion(1, 0);
+        options.AssumeDefaultVersionWhenUnspecified = true;
+        options.ReportApiVersions = true;
+
+        options.ApiVersionReader = ApiVersionReader.Combine(
+            new UrlSegmentApiVersionReader(),
+            new QueryStringApiVersionReader("api-version"),
+            new HeaderApiVersionReader("X-Api-Version")
+            );
+    }
+        ).AddMvc()
+        .AddApiExplorer(options =>
+        {
+            options.GroupNameFormat = "'v'VVV";
+            options.SubstituteApiVersionInUrl = true;
+        }
+        );
+
     // Identity: Swagger + زرار Authorize عشان نبعت الـ JWT مع الـ requests من جوه Swagger
     builder.Services.AddSwaggerGen(options =>
     {
         // اسم ونسخة الـ API اللي بيظهروا فوق في صفحة Swagger
         options.SwaggerDoc("v1", new OpenApiInfo { Title = "FinShark API", Version = "v1" });
+        options.SwaggerDoc("v2", new OpenApiInfo { Title = "FinShark API Market Phone", Version = "v2" });
 
         // تعريف طريقة الـ Authentication: الـ token بيتبعت في الـ header (Authorization: Bearer <token>)
         options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -154,7 +175,16 @@ try
     if (app.Environment.IsDevelopment())
     {
         app.UseSwagger();       // يولّد ملف الـ JSON
-        app.UseSwaggerUI();     // يعرض الواجهة التفاعلية
+        app.UseSwaggerUI(options =>
+        {
+            options.SwaggerEndpoint("/swagger/v2/swagger.json", "FinShark API Market Phone");
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "FinShark API");
+            options.DocumentTitle = "FinShark API Docs";
+            options.EnablePersistAuthorization();
+            options.DisplayRequestDuration();
+        }
+            
+            );     // يعرض الواجهة التفاعلية
 
         // Runtime Seeder: بيانات تجريبية (الإعدادات في appsettings.json → SeedData)
         // CreateScope: الـ DbContext متسجّل Scoped، فلازم scope نجيبه منه (برّه أي request)
@@ -186,3 +216,21 @@ finally
     // نتأكد إن كل الـ logs اتكتبت في الملف قبل ما التطبيق يقفل
     Log.CloseAndFlush();
 }
+
+
+
+
+/*
+ -----------------
+API
+------------
+    Infrastructrue
+    -------------------
+        Application
+        ------------------------
+            Domain
+ 
+ 
+ 
+ 
+ */
