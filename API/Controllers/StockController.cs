@@ -7,6 +7,7 @@ using FinShark.Application.Mappers;
 using FinShark.Domain.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace FinShark.API.Controllers
 {
@@ -23,11 +24,14 @@ namespace FinShark.API.Controllers
         // Session 8: الـ Logger (Serilog ورا الكواليس)
         private readonly ILogger<StockController> _logger;
 
+        private readonly IMemoryCache _cache;
+
         // Dependency Injection: الحاجات دي بتيجي جاهزة من الـ DI Container (متسجّلة في Program.cs)
-        public StockController(IStockRepository stockRepo, ILogger<StockController> logger)
+        public StockController(IStockRepository stockRepo, ILogger<StockController> logger,IMemoryCache cache)
         {
             _stockRepo = stockRepo;
             _logger = logger;
+            _cache = cache;
         }
 
         // GET /api/stock?symbol=AA&sortBy=Purchase&isDescending=true&pageNumber=1&pageSize=10
@@ -55,6 +59,15 @@ namespace FinShark.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
+            var cacheKey = CacheKeys.StockById(id);
+            if(_cache.TryGetValue(cacheKey,out StockDto? cachedStock))
+            {
+                _logger.LogInformation("Cache Hit {CacheKey}", cacheKey);
+                return Ok(cachedStock);
+            }
+
+            _logger.LogInformation("Cache MISS {CacheKey}", cacheKey);
+
             var stock = await _stockRepo.GetByIdAsync(id);
 
             if (stock == null)

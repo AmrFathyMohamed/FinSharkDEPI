@@ -157,7 +157,7 @@ try
     // Session 8: الـ Global Exception Handler + ProblemDetails
     builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
     builder.Services.AddProblemDetails();
-
+    builder.Services.AddMemoryCache();
     // Build(): بيقفل تسجيل الـ Services ويعمل الـ app — بعد السطر ده مينفعش نضيف Services تاني
     var app = builder.Build();
 
